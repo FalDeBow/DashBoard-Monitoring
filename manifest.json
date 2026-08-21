@@ -1,0 +1,15 @@
+{
+  "name": "Control Tower Logistics",
+  "short_name": "ControlTower",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1329",
+  "theme_color": "#0b1329",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='120' fill='%230b1329'/><circle cx='256' cy='256' r='200' fill='%23151e38' stroke='%2338bdf8' stroke-width='14'/><path d='M140 280h160v-80H140v80zm160-80l60 30v50h-60v-80z' fill='%2338bdf8'/><circle cx='180' cy='310' r='24' fill='%230284c7' stroke='%23f8fafc' stroke-width='8'/><circle cx='320' cy='310' r='24' fill='%230284c7' stroke='%23f8fafc' stroke-width='8'/><path d='M120 180h272' stroke='%2338bdf8' stroke-width='16' stroke-linecap='round'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
