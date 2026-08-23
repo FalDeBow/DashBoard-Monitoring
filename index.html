@@ -41,7 +41,7 @@
     
     #loaderOverlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(11, 19, 41, 0.92); backdrop-filter: blur(8px);
+      background: rgba(11, 19, 41, 0.95); backdrop-filter: blur(8px);
       z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; transition: opacity 0.3s ease;
     }
     .spinner {
@@ -458,7 +458,6 @@
     function loadDashboardData(showLoadingOverlay = false) {
       if (showLoadingOverlay) showLoader(true);
       
-      // Jika mode monthly, parameter tanggal dikirim "SEMUA TANGGAL" agar backend merangkum 1 bulan penuh
       const targetParam = currentAnalysisMode === 'monthly' ? "SEMUA TANGGAL" : selectedOperationalDate;
       const targetUrl = `${GAS_API_URL}?action=getInitialData&tanggal=${encodeURIComponent(targetParam)}&rute=SEMUA%20RUTE`;
 
@@ -469,10 +468,11 @@
             renderDashboard(res.dashboard);
             fetchAiDiagnostics(res.dashboard.aiPayload);
           }
-          if (showLoadingOverlay) showLoader(false);
         })
         .catch(err => {
           console.error("Gagal koneksi API GAS:", err);
+        })
+        .finally(() => {
           if (showLoadingOverlay) showLoader(false);
         });
     }
