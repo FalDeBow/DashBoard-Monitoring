@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Control Tower">
   <meta name="theme-color" content="#070c1b">
-  <title>Control Tower Logistics - Advanced Edition</title>
+  <title>Control Tower Logistics - Advanced</title>
 
   <!-- PWA MANIFEST & HOMESCREEN ICON LINK -->
   <link rel="manifest" href="manifest.json">
@@ -67,7 +67,7 @@
 
     .filter-group { margin-bottom: 12px; }
     .filter-group label { font-size: 9px; color: var(--app-muted); font-weight: 700; display: block; margin-bottom: 6px; text-transform: uppercase; }
-    .filter-group select { width: 100%; padding: 8px 10px; background-color: #0b1329; color: #fef08a; border: 1px solid var(--app-border); border-radius: 8px; font-weight: 600; font-size: 11px; outline: none; }
+    .filter-group select { width: 100%; padding: 8px 10px; background-color: #0b1329; color: #fef08a; border: 1px solid var(--app-border); border-radius: 8px; font-weight: 600; font-size: 11px; outline: none; margin-bottom: 10px; cursor: pointer;}
 
     /* Mode Switcher Buttons */
     .mode-switch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
@@ -113,14 +113,14 @@
     .ai-box { background: linear-gradient(135deg, #1e1b4b, #2e1065); border: 1px solid #6366f1; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; font-size: 11px; color: #e0e7ff; line-height: 1.5; width: 100%; }
     .ai-box strong { color: #818cf8; display: block; margin-bottom: 2px; font-size: 11px; }
 
-    /* Content Views / Sections */
+    /* Content Views */
     .view-section { display: none; width: 100%; }
     .view-section.active { display: block; }
 
     .dashboard-split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; width: 100%; }
     .card-panel { background: var(--app-card); border-radius: 10px; border: 1px solid var(--app-border); padding: 14px; margin-bottom: 16px; width: 100%; overflow: hidden; }
     .panel-header { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid var(--app-border); padding-bottom: 8px; }
-    .panel-header h3 { font-size: 12px; color: var(--app-accent); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px; justify-content: space-between; }
+    .panel-header h3 { font-size: 12px; color: var(--app-accent); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     
     .search-box { width: 100%; padding: 8px 12px; background: #0b1329; border: 1px solid var(--app-border); border-radius: 8px; color: #f8fafc; font-size: 11px; outline: none; }
     .search-box::placeholder { color: #64748b; }
@@ -210,23 +210,25 @@
         <div class="nav-item" onclick="switchView('geotag', this)">🗺️ Geotag Jabodetabek (PU)</div>
       </div>
 
-      <!-- Route / Driver Filter -->
+      <!-- FILTER RUTE / DRIVER DIKEMBALIKAN DISINI -->
       <div class="filter-group">
-        <label>🚚 RUTE / DRIVER FILTER</label>
-        <select id="filterRute" onchange="loadDashboardData(false)"><option>SEMUA RUTE</option></select>
+        <label>🚚 FILTER RUTE / DRIVER</label>
+        <select id="filterRute" onchange="loadDashboardData(true)">
+          <option value="SEMUA RUTE">SEMUA RUTE</option>
+        </select>
       </div>
 
-      <!-- Mode Switcher & Calendar Widget -->
+      <!-- ADVANCED KALENDER: DUAL MODE (AKUMULASI & HARIAN) -->
       <div class="filter-group">
-        <label>📅 PERIODE ANALISIS DATA</label>
+        <label>📅 PERIODE ANALISIS (DUAL-MODE)</label>
         <div class="mode-switch-grid">
-          <button id="btnModeMonthly" class="mode-btn active" onclick="setAnalysisMode('monthly')">📈 Akumulasi</button>
-          <button id="btnModeDaily" class="mode-btn" onclick="setAnalysisMode('daily')">📅 Harian</button>
+          <button id="btnModeMonthly" class="mode-btn active" onclick="setMode('monthly')" title="Tampilkan rekapitulasi data bulan ini">📈 Bulan Ini</button>
+          <button id="btnModeDaily" class="mode-btn" onclick="setMode('daily')" title="Tampilkan data per tanggal spesifik">📅 Harian</button>
         </div>
-        <div class="sidebar-calendar" id="sidebarCalendarBox">
+        <div class="sidebar-calendar">
           <div class="cal-header-mini">
             <span id="calMonthLabel">Agustus 2026</span>
-            <span style="font-size:9px; color:var(--app-accent); cursor:pointer;" onclick="setAnalysisMode('monthly')">Reset Akumulasi</span>
+            <span style="font-size:9px; color:var(--app-accent); cursor:pointer;" onclick="setMode('monthly')">🔄 Reset</span>
           </div>
           <div class="cal-grid-mini" id="sidebarMiniCal">
             <!-- Rendered via JS -->
@@ -236,8 +238,8 @@
 
       <div class="sys-status">
         <strong>⚡ CONTROL TOWER ENGINE</strong><br>
-        • Dual-Mode Rollup (Akumulasi & Harian)<br>
-        • Jabodetabek Geolog Maps<br>
+        • Live Calendar Data Sync<br>
+        • Advanced Dual-Mode Rollup<br>
         • Universal Global Search
       </div>
     </div>
@@ -343,7 +345,7 @@
         <div class="panel-header">
           <h3>🗺️ Geotagging Jabodetabek (Analisis Geolog Tim PU)</h3>
         </div>
-        <p style="font-size:11px; color:var(--app-muted); margin-bottom:12px;">Pilih titik hub di wilayah Jabodetabek untuk menampilkan peta Google Maps secara interaktif dan memantau geolog lapangan:</p>
+        <p style="font-size:11px; color:var(--app-muted); margin-bottom:12px;">Pilih titik hub di wilayah Jabodetabek untuk menampilkan peta Google Maps secara interaktif:</p>
         
         <div class="geotag-layout">
           <div class="geotag-list" id="geotagListContainer">
@@ -371,17 +373,18 @@
     let barChartInstance = null;
     let rawDashboardData = null;
     
-    // Advanced State Management
-    let currentAnalysisMode = "monthly"; // "monthly" or "daily"
-    let selectedOperationalDate = "2026-08-23";
+    // STATE MANAGAMENT (ADVANCED DUAL MODE)
+    let currentMode = "monthly"; // 'monthly' atau 'daily'
+    let selectedOperationalDate = "2026-08-23"; 
 
+    // Jabodetabek Geolog Data Database for Tim PU
     const jabodetabekGeologData = [
-      { id: 1, name: "Sunter Hub Center", region: "Jakarta Utara", lat: "-6.1451", lng: "106.8682", route: "BTS-01", status: "Active", volume: "1,420 Koli", density: "High", notes: "Titik konsolidasi primer kargo express wilayah utara." },
-      { id: 2, name: "Cipinang Logistics Point", region: "Jakarta Timur", lat: "-6.2250", lng: "106.8921", route: "BTS-02", status: "Active", volume: "1,890 Koli", density: "Very High", notes: "Hub pickup utama. Trafik kontainer padat pada jam operasional pagi." },
-      { id: 3, name: "Bekasi Substation Timur", region: "Bekasi", lat: "-6.2383", lng: "106.9756", route: "BKS-05", status: "Warning", volume: "980 Koli", density: "Moderate", notes: "Terdapat perbaikan jalan akses tol lingkar. Estimasi delay kargo +15 menit." },
-      { id: 4, name: "Depok Margonda Drop Point", region: "Depok", lat: "-6.3855", lng: "106.8307", route: "DPK-03", status: "Active", volume: "750 Koli", density: "Moderate", notes: "Titik penurunan kurir reguler kawasan kampus & komersial Margonda." },
-      { id: 5, name: "Tangerang BSD Hub", region: "Tangerang", lat: "-6.3024", lng: "106.6520", route: "TNG-04", status: "Active", volume: "1,120 Koli", density: "High", notes: "Zona barat terpantau stabil dengan efisiensi muat armada mencapai 94%." },
-      { id: 6, name: "Jakarta Selatan Hub", region: "Jakarta Selatan", lat: "-6.2615", lng: "106.8106", route: "SEL-02", status: "Active", volume: "1,340 Koli", density: "High", notes: "Aktivitas pick-up perkantoran tinggi menjelang siang hari." }
+      { id: 1, name: "Sunter Hub Center", region: "Jakarta Utara", lat: "-6.1451", lng: "106.8682", route: "BTS-01", status: "Active", volume: "1,420 Koli", density: "High" },
+      { id: 2, name: "Cipinang Logistics Point", region: "Jakarta Timur", lat: "-6.2250", lng: "106.8921", route: "BTS-02", status: "Active", volume: "1,890 Koli", density: "Very High" },
+      { id: 3, name: "Bekasi Substation Timur", region: "Bekasi", lat: "-6.2383", lng: "106.9756", route: "BKS-05", status: "Warning", volume: "980 Koli", density: "Moderate" },
+      { id: 4, name: "Depok Margonda Drop Point", region: "Depok", lat: "-6.3855", lng: "106.8307", route: "DPK-03", status: "Active", volume: "750 Koli", density: "Moderate" },
+      { id: 5, name: "Tangerang BSD Hub", region: "Tangerang", lat: "-6.3024", lng: "106.6520", route: "TNG-04", status: "Active", volume: "1,120 Koli", density: "High" },
+      { id: 6, name: "Jakarta Selatan Hub", region: "Jakarta Selatan", lat: "-6.2615", lng: "106.8106", route: "SEL-02", status: "Active", volume: "1,340 Koli", density: "High" }
     ];
 
     window.onload = function() {
@@ -390,20 +393,14 @@
       loadDashboardData(true);
     };
 
-    function toggleMobileMenu() {
-      document.getElementById('sidebarContent').classList.toggle('active');
-    }
+    function toggleMobileMenu() { document.getElementById('sidebarContent').classList.toggle('active'); }
 
     function switchView(viewId, element) {
       document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-      
       document.getElementById('view-' + viewId).classList.add('active');
       element.classList.add('active');
-      
-      if(window.innerWidth <= 768) {
-        document.getElementById('sidebarContent').classList.remove('active');
-      }
+      if(window.innerWidth <= 768) { document.getElementById('sidebarContent').classList.remove('active'); }
     }
 
     function goHome() {
@@ -411,18 +408,25 @@
       switchView('overview', overviewTab);
     }
 
-    function toggleAccordion(elementId) {
-      document.getElementById(elementId).classList.toggle('active');
-    }
+    function toggleAccordion(elementId) { document.getElementById(elementId).classList.toggle('active'); }
 
-    function setAnalysisMode(mode) {
-      currentAnalysisMode = mode;
+    // --- FUNGSI ADVANCED MODE (BULANAN VS HARIAN) ---
+    function setMode(mode) {
+      currentMode = mode;
       
+      // Update UI Tombol
       document.getElementById('btnModeMonthly').classList.toggle('active', mode === 'monthly');
       document.getElementById('btnModeDaily').classList.toggle('active', mode === 'daily');
 
+      // Refresh Kalender & Tarik Data
       renderSidebarCalendar();
-      loadDashboardData(false);
+      loadDashboardData(true); 
+    }
+
+    function selectCalendarDate(dateStr) {
+      selectedOperationalDate = dateStr;
+      // Jika kalender diklik, otomatis paksa masuk ke mode Harian
+      setMode('daily'); 
     }
 
     function renderSidebarCalendar() {
@@ -438,50 +442,46 @@
       
       for(let d = 1; d <= 31; d++) {
         let dateStr = `2026-08-${d < 10 ? '0' + d : d}`;
-        let isSelected = (currentAnalysisMode === 'daily' && dateStr === selectedOperationalDate) ? 'selected' : '';
+        // Highlight tanggal JIKA sedang dalam mode harian DAN tanggalnya cocok
+        let isSelected = (currentMode === 'daily' && dateStr === selectedOperationalDate) ? 'selected' : '';
         html += `<div class="cal-cell-mini ${isSelected}" onclick="selectCalendarDate('${dateStr}')">${d}</div>`;
       }
       
       calContainer.innerHTML = html;
       
-      if(currentAnalysisMode === 'monthly') {
-        document.getElementById('overviewTitleHeader').innerHTML = `<span>📊 Overview Poin Penting (Agustus 2026)</span>`;
-        document.getElementById('activeModeBadge').innerText = "Mode: Akumulasi Bulanan";
-        document.getElementById('activeModeBadge').className = "badge badge-optimal";
+      // Update Title & Badge Berdasarkan Mode Aktif
+      const badge = document.getElementById('activeModeBadge');
+      const headerTitle = document.getElementById('overviewTitleHeader');
+      
+      if(currentMode === 'monthly') {
+        headerTitle.innerHTML = `<span>📊 Overview Poin Penting (Agustus 2026)</span> <span id="activeModeBadge" class="badge badge-optimal">Mode: Akumulasi</span>`;
       } else {
-        document.getElementById('overviewTitleHeader').innerHTML = `<span>📊 Overview Poin Penting (${selectedOperationalDate})</span>`;
-        document.getElementById('activeModeBadge').innerText = `Mode: Harian (${selectedOperationalDate})`;
-        document.getElementById('activeModeBadge').className = "badge badge-warning";
+        headerTitle.innerHTML = `<span>📊 Overview Poin Penting (${selectedOperationalDate})</span> <span id="activeModeBadge" class="badge badge-warning">Mode: Harian</span>`;
       }
     }
 
-    function selectCalendarDate(dateStr) {
-      selectedOperationalDate = dateStr;
-      setAnalysisMode('daily');
-    }
-
-    function populateFilters(filtersData) {
-      if (!filtersData || !filtersData.routes) return;
-      const routeSelect = document.getElementById('filterRute');
-      const curRoute = routeSelect.value;
-      routeSelect.innerHTML = '<option>SEMUA RUTE</option>';
-      filtersData.routes.forEach(r => {
-        routeSelect.innerHTML += `<option ${r === curRoute ? 'selected' : ''}>${r}</option>`;
-      });
-    }
-
+    // --- FUNGSI AMAN PENGAMBILAN DATA (FAILSAFE LOADER) ---
     function loadDashboardData(showLoadingOverlay = false) {
       if (showLoadingOverlay) showLoader(true);
       
-      const targetParam = currentAnalysisMode === 'monthly' ? "SEMUA TANGGAL" : selectedOperationalDate;
-      const ruteVal = document.getElementById('filterRute') ? document.getElementById('filterRute').value : "SEMUA RUTE";
-      const targetUrl = `${GAS_API_URL}?action=getInitialData&tanggal=${encodeURIComponent(targetParam)}&rute=${encodeURIComponent(ruteVal)}`;
+      // Deteksi Filter Rute (Aman dari error null)
+      const ruteEl = document.getElementById('filterRute');
+      const filterRuteValue = ruteEl ? ruteEl.value : "SEMUA RUTE";
+      
+      // Deteksi Tanggal Berdasarkan Mode
+      const filterTanggalValue = (currentMode === 'monthly') ? "SEMUA TANGGAL" : selectedOperationalDate;
+
+      const targetUrl = `${GAS_API_URL}?action=getInitialData&tanggal=${encodeURIComponent(filterTanggalValue)}&rute=${encodeURIComponent(filterRuteValue)}`;
 
       fetch(targetUrl)
         .then(response => response.json())
         .then(res => {
-          if (res && res.filters) {
-            populateFilters(res.filters);
+          if (res && res.filters && res.filters.routes && ruteEl) {
+            // Update dropdown tanpa menghilangkan pilihan saat ini
+            ruteEl.innerHTML = '<option value="SEMUA RUTE">SEMUA RUTE</option>';
+            res.filters.routes.forEach(r => {
+              ruteEl.innerHTML += `<option value="${r}" ${r === filterRuteValue ? 'selected' : ''}>${r}</option>`;
+            });
           }
           if (res && res.dashboard) {
             renderDashboard(res.dashboard);
@@ -490,8 +490,10 @@
         })
         .catch(err => {
           console.error("Gagal koneksi API GAS:", err);
+          document.getElementById('aiBox').innerHTML = "<strong>⚠️ [ERROR CONNECTION]</strong> Gagal memuat data dari server.";
         })
         .finally(() => {
+          // DIJAMIN tereksekusi, menutupi celah infinite loading
           if (showLoadingOverlay) showLoader(false);
         });
     }
@@ -629,16 +631,13 @@
           </div>`;
       });
       container.innerHTML = html;
-      selectGeotagItem(jabodetabekGeologData[0].id, container.children[0]);
     }
 
     function selectGeotagItem(id, element) {
       document.querySelectorAll('.geotag-item').forEach(el => el.classList.remove('active'));
       if(element) element.classList.add('active');
-
       const data = jabodetabekGeologData.find(d => d.id === id);
       if(!data) return;
-
       document.getElementById('mapTitleHeader').innerText = `📍 Peta Geolog: ${data.name} (${data.region})`;
       document.getElementById('gmapFrame').src = `https://maps.google.com/maps?q=${data.lat},${data.lng}&z=14&output=embed`;
     }
