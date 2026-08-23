@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Control Tower">
   <meta name="theme-color" content="#070c1b">
-  <title>Control Tower Logistics</title>
+  <title>Control Tower Logistics - Advanced Edition</title>
 
   <!-- PWA MANIFEST & HOMESCREEN ICON LINK -->
   <link rel="manifest" href="manifest.json">
@@ -68,6 +68,12 @@
     .filter-group { margin-bottom: 12px; }
     .filter-group label { font-size: 9px; color: var(--app-muted); font-weight: 700; display: block; margin-bottom: 6px; text-transform: uppercase; }
 
+    /* Mode Switcher Buttons */
+    .mode-switch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+    .mode-btn { background: #0b1329; border: 1px solid var(--app-border); color: var(--app-muted); padding: 7px; border-radius: 6px; font-size: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .mode-btn:hover { background: #1e293b; color: white; }
+    .mode-btn.active { background: var(--app-accent); color: #0b1329; border-color: var(--app-accent); font-weight: 800; }
+
     /* Inline Sidebar Calendar Widget */
     .sidebar-calendar { background: #0b1329; border: 1px solid var(--app-border); border-radius: 10px; padding: 10px; margin-bottom: 12px; }
     .cal-header-mini { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--app-accent); margin-bottom: 8px; }
@@ -113,7 +119,7 @@
     .dashboard-split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; width: 100%; }
     .card-panel { background: var(--app-card); border-radius: 10px; border: 1px solid var(--app-border); padding: 14px; margin-bottom: 16px; width: 100%; overflow: hidden; }
     .panel-header { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid var(--app-border); padding-bottom: 8px; }
-    .panel-header h3 { font-size: 12px; color: var(--app-accent); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .panel-header h3 { font-size: 12px; color: var(--app-accent); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px; justify-content: space-between; }
     
     .search-box { width: 100%; padding: 8px 12px; background: #0b1329; border: 1px solid var(--app-border); border-radius: 8px; color: #f8fafc; font-size: 11px; outline: none; }
     .search-box::placeholder { color: #64748b; }
@@ -203,13 +209,17 @@
         <div class="nav-item" onclick="switchView('geotag', this)">🗺️ Geotag Jabodetabek (PU)</div>
       </div>
 
-      <!-- Full Interactive Calendar for Operational Date Selection -->
+      <!-- Mode Switcher & Calendar Widget -->
       <div class="filter-group">
-        <label>📅 KALENDER OPERASIONAL</label>
-        <div class="sidebar-calendar">
+        <label>📅 PERIODE ANALISIS DATA</label>
+        <div class="mode-switch-grid">
+          <button id="btnModeMonthly" class="mode-btn active" onclick="setAnalysisMode('monthly')">📈 Bulanan</button>
+          <button id="btnModeDaily" class="mode-btn" onclick="setAnalysisMode('daily')">📅 Harian</button>
+        </div>
+        <div class="sidebar-calendar" id="sidebarCalendarBox">
           <div class="cal-header-mini">
             <span id="calMonthLabel">Agustus 2026</span>
-            <span style="font-size:9px; color:var(--app-accent); cursor:pointer;" onclick="resetToToday()">Hari Ini</span>
+            <span style="font-size:9px; color:var(--app-accent); cursor:pointer;" onclick="setAnalysisMode('monthly')">Reset Akumulasi</span>
           </div>
           <div class="cal-grid-mini" id="sidebarMiniCal">
             <!-- Rendered via JS -->
@@ -218,10 +228,10 @@
       </div>
 
       <div class="sys-status">
-        <strong>⚡ CONTROL TOWER ENGINE</strong><br>
-        • Live Calendar Data Sync<br>
+        <strong>⚡ ADVANCED CONTROL ENGINE</strong><br>
+        • Dual-Mode Rollup (Bulanan & Harian)<br>
         • Jabodetabek Geolog Maps<br>
-        • Universal Global Search
+        • Real-Time Context Sync
       </div>
     </div>
   </div>
@@ -254,13 +264,16 @@
       <strong>💡 [AI CONTROL TOWER DIAGNOSTICS]</strong> Memuat analisis kargo operasional...
     </div>
 
-    <!-- VIEW 1: OVERVIEW (Key points highlighted for selected date) -->
+    <!-- VIEW 1: OVERVIEW -->
     <div class="view-section active" id="view-overview">
       <div class="dashboard-split">
         <div class="left-col">
           <div class="card-panel">
             <div class="panel-header">
-              <h3 id="overviewTitleHeader">📊 Overview Poin Penting Hari Ini</h3>
+              <h3 id="overviewTitleHeader">
+                <span>📊 Overview Poin Penting</span>
+                <span id="activeModeBadge" class="badge badge-optimal">Mode: Akumulasi Bulanan</span>
+              </h3>
             </div>
             <table class="desktop-table-view">
               <thead>
@@ -317,7 +330,7 @@
       </div>
     </div>
 
-    <!-- VIEW 4: GEOTAG JABODETABEK (PU) WITH LIVE GOOGLE MAPS -->
+    <!-- VIEW 4: GEOTAG JABODETABEK (PU) -->
     <div class="view-section" id="view-geotag">
       <div class="card-panel">
         <div class="panel-header">
@@ -350,9 +363,11 @@
     let pieChartInstance = null;
     let barChartInstance = null;
     let rawDashboardData = null;
-    let selectedOperationalDate = "2026-08-23"; // Default date
+    
+    // Advanced State Management
+    let currentAnalysisMode = "monthly"; // "monthly" or "daily"
+    let selectedOperationalDate = "2026-08-23";
 
-    // Jabodetabek Geolog Data Database for Tim PU
     const jabodetabekGeologData = [
       { id: 1, name: "Sunter Hub Center", region: "Jakarta Utara", lat: "-6.1451", lng: "106.8682", route: "BTS-01", status: "Active", volume: "1,420 Koli", density: "High", notes: "Titik konsolidasi primer kargo express wilayah utara." },
       { id: 2, name: "Cipinang Logistics Point", region: "Jakarta Timur", lat: "-6.2250", lng: "106.8921", route: "BTS-02", status: "Active", volume: "1,890 Koli", density: "Very High", notes: "Hub pickup utama. Trafik kontainer padat pada jam operasional pagi." },
@@ -393,6 +408,17 @@
       document.getElementById(elementId).classList.toggle('active');
     }
 
+    // Switch between Monthly Accumulation and Daily View
+    function setAnalysisMode(mode) {
+      currentAnalysisMode = mode;
+      
+      document.getElementById('btnModeMonthly').classList.toggle('active', mode === 'monthly');
+      document.getElementById('btnModeDaily').classList.toggle('active', mode === 'daily');
+
+      renderSidebarCalendar();
+      loadDashboardData(false);
+    }
+
     // Interactive Sidebar Calendar Logic for August 2026
     function renderSidebarCalendar() {
       const calContainer = document.getElementById('sidebarMiniCal');
@@ -407,30 +433,34 @@
       
       for(let d = 1; d <= 31; d++) {
         let dateStr = `2026-08-${d < 10 ? '0' + d : d}`;
-        let isSelected = dateStr === selectedOperationalDate ? 'selected' : '';
+        let isSelected = (currentAnalysisMode === 'daily' && dateStr === selectedOperationalDate) ? 'selected' : '';
         html += `<div class="cal-cell-mini ${isSelected}" onclick="selectCalendarDate('${dateStr}')">${d}</div>`;
       }
       
       calContainer.innerHTML = html;
-      document.getElementById('overviewTitleHeader').innerText = `📊 Overview Poin Penting (${selectedOperationalDate})`;
+      
+      if(currentAnalysisMode === 'monthly') {
+        document.getElementById('overviewTitleHeader').innerHTML = `<span>📊 Overview Poin Penting (Agustus 2026)</span>`;
+        document.getElementById('activeModeBadge').innerText = "Mode: Akumulasi Bulanan";
+        document.getElementById('activeModeBadge').className = "badge badge-optimal";
+      } else {
+        document.getElementById('overviewTitleHeader').innerHTML = `<span>📊 Overview Poin Penting (${selectedOperationalDate})</span>`;
+        document.getElementById('activeModeBadge').innerText = `Mode: Harian (${selectedOperationalDate})`;
+        document.getElementById('activeModeBadge').className = "badge badge-warning";
+      }
     }
 
     function selectCalendarDate(dateStr) {
       selectedOperationalDate = dateStr;
-      renderSidebarCalendar();
-      loadDashboardData(false); // Seamless update without full screen loader
-    }
-
-    function resetToToday() {
-      selectedOperationalDate = "2026-08-23";
-      renderSidebarCalendar();
-      loadDashboardData(false);
+      setAnalysisMode('daily'); // Otomatis beralih ke mode harian saat tanggal diklik
     }
 
     function loadDashboardData(showLoadingOverlay = false) {
       if (showLoadingOverlay) showLoader(true);
       
-      const targetUrl = `${GAS_API_URL}?action=getInitialData&tanggal=${encodeURIComponent(selectedOperationalDate)}&rute=SEMUA%20RUTE`;
+      // Jika mode monthly, parameter tanggal dikirim "SEMUA TANGGAL" agar backend merangkum 1 bulan penuh
+      const targetParam = currentAnalysisMode === 'monthly' ? "SEMUA TANGGAL" : selectedOperationalDate;
+      const targetUrl = `${GAS_API_URL}?action=getInitialData&tanggal=${encodeURIComponent(targetParam)}&rute=SEMUA%20RUTE`;
 
       fetch(targetUrl)
         .then(response => response.json())
@@ -580,6 +610,7 @@
           </div>`;
       });
       container.innerHTML = html;
+      selectGeotagItem(jabodetabekGeologData[0].id, container.children[0]);
     }
 
     function selectGeotagItem(id, element) {
