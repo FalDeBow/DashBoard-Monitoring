@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Control Tower">
-  <meta name="theme-color" content="#0b1329">
+  <meta name="theme-color" content="#070c1b">
   <title>Control Tower Logistics - macOS/iOS Edition</title>
 
   <!-- PWA MANIFEST & HOMESCREEN ICON LINK -->
@@ -22,8 +22,8 @@
   
   <style>
     :root {
-      --mac-bg: rgba(11, 19, 41, 0.82);
-      --mac-card: rgba(21, 30, 56, 0.65);
+      --mac-bg: rgba(11, 19, 41, 0.85);
+      --mac-card: rgba(21, 30, 56, 0.7);
       --mac-border: rgba(255, 255, 255, 0.08);
       --mac-accent: #38bdf8;
       --mac-text: #f8fafc;
@@ -72,12 +72,18 @@
     .nav-item.active { background: rgba(56, 189, 248, 0.15); color: var(--mac-accent); border-color: rgba(56, 189, 248, 0.3); }
 
     .filter-group { margin-bottom: 12px; }
-    .filter-group label { font-size: 9px; color: var(--mac-muted); font-weight: 700; display: block; margin-bottom: 4px; text-transform: uppercase; }
-    .filter-group select, .filter-group input { width: 100%; padding: 8px 10px; background-color: rgba(11, 19, 41, 0.6); color: #fef08a; border: 1px solid var(--mac-border); border-radius: 8px; font-weight: 600; font-size: 11px; outline: none; }
-    
-    .date-control-box { display: flex; gap: 6px; align-items: center; }
-    .date-input-custom { flex: 1; padding: 8px 10px; background-color: rgba(11, 19, 41, 0.6); color: var(--mac-accent); border: 1px solid var(--mac-border); border-radius: 8px; font-weight: 600; font-size: 11px; outline: none; color-scheme: dark; cursor: pointer; }
-    .btn-reset-date { padding: 8px 10px; background: rgba(255,255,255,0.06); color: #fef08a; border: 1px solid var(--mac-border); border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; white-space: pointer; transition: all 0.2s; }
+    .filter-group label { font-size: 9px; color: var(--mac-muted); font-weight: 700; display: block; margin-bottom: 6px; text-transform: uppercase; }
+    .filter-group select { width: 100%; padding: 8px 10px; background-color: rgba(11, 19, 41, 0.6); color: #fef08a; border: 1px solid var(--mac-border); border-radius: 8px; font-weight: 600; font-size: 11px; outline: none; }
+
+    /* Inline Sidebar Calendar Widget */
+    .sidebar-calendar { background: rgba(11, 19, 41, 0.6); border: 1px solid var(--mac-border); border-radius: 10px; padding: 10px; margin-bottom: 12px; }
+    .cal-header-mini { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--mac-accent); margin-bottom: 8px; }
+    .cal-grid-mini { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+    .cal-day-lbl { font-size: 8px; color: var(--mac-muted); font-weight: 700; padding-bottom: 4px; }
+    .cal-cell-mini { font-size: 9px; font-weight: 600; color: #cbd5e1; padding: 6px 0; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .cal-cell-mini:hover { background: rgba(255,255,255,0.1); color: white; }
+    .cal-cell-mini.selected { background: var(--mac-accent); color: #070c1b; font-weight: 800; }
+    .cal-cell-mini.other-month { opacity: 0.25; }
 
     .sys-status { margin-top: auto; padding: 10px; background-color: rgba(11, 19, 41, 0.4); border-radius: 8px; border: 1px solid var(--mac-border); font-size: 9px; color: var(--mac-muted); line-height: 1.4; }
     
@@ -85,15 +91,15 @@
     .main-content { flex: 1; padding: 20px; overflow-y: auto; overflow-x: hidden; background: radial-gradient(circle at top right, #111b38 0%, #070c1b 70%); width: 100%; max-width: 100%; }
     
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--mac-border); padding-bottom: 12px; gap: 10px; flex-wrap: wrap; }
-    .top-bar h1 { font-size: 15px; color: var(--mac-accent); font-weight: 800; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+    .top-bar-left { display: flex; align-items: center; gap: 10px; }
+    .btn-home { background: rgba(255,255,255,0.06); border: 1px solid var(--mac-border); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--mac-accent); font-size: 14px; transition: all 0.2s; }
+    .btn-home:hover { background: rgba(56, 189, 248, 0.2); border-color: var(--mac-accent); }
+    .top-bar h1 { font-size: 15px; color: var(--mac-accent); font-weight: 800; letter-spacing: -0.3px; }
     
-    .global-search-container { flex: 1; max-width: 320px; position: relative; }
+    .global-search-container { flex: 1; max-width: 300px; position: relative; }
     .global-search { width: 100%; padding: 8px 12px 8px 32px; background: rgba(21, 30, 56, 0.8); border: 1px solid var(--mac-border); border-radius: 10px; color: white; font-size: 11px; outline: none; transition: all 0.2s; }
     .global-search:focus { border-color: var(--mac-accent); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
     .global-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--mac-muted); }
-
-    .btn-refresh { padding: 8px 14px; background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3); transition: all 0.2s; }
-    .btn-refresh:hover { opacity: 0.9; transform: translateY(-1px); }
 
     /* KPI Grid */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 10px; margin-bottom: 16px; width: 100%; }
@@ -131,21 +137,19 @@
     
     .chart-wrapper { position: relative; width: 100%; height: 210px; }
 
-    /* Geotag Jabodetabek List */
-    .geotag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; width: 100%; }
-    .geotag-card { background: rgba(11, 19, 41, 0.6); border: 1px solid var(--mac-border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
-    .geotag-loc { font-size: 11px; font-weight: 800; color: #38bdf8; display: flex; justify-content: space-between; }
-    .geotag-coords { font-family: monospace; font-size: 9px; color: #a5b4fc; background: rgba(255,255,255,0.03); padding: 4px 6px; border-radius: 4px; display: inline-block; }
-
-    /* Full Calendar View */
-    .calendar-container { width: 100%; display: flex; flex-direction: column; gap: 12px; }
-    .calendar-header-bar { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 13px; color: var(--mac-accent); padding: 4px 8px; }
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-    .cal-day-header { text-align: center; font-size: 10px; font-weight: 700; color: var(--mac-muted); padding: 4px 0; }
-    .cal-cell { background: rgba(11, 19, 41, 0.5); border: 1px solid var(--mac-border); border-radius: 8px; min-height: 75px; padding: 6px; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.2s; }
-    .cal-cell:hover { background: rgba(255, 255, 255, 0.03); border-color: rgba(56, 189, 248, 0.3); }
-    .cal-date-num { font-size: 10px; font-weight: 700; color: #cbd5e1; }
-    .cal-stat-badge { font-size: 8px; font-weight: 700; padding: 2px 4px; border-radius: 4px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; text-align: center; }
+    /* Geotag Jabodetabek Layout */
+    .geotag-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; width: 100%; }
+    .geotag-list { display: flex; flex-direction: column; gap: 8px; max-height: 420px; overflow-y: auto; padding-right: 4px; }
+    .geotag-item { background: rgba(11, 19, 41, 0.6); border: 1px solid var(--mac-border); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: all 0.2s; }
+    .geotag-item:hover, .geotag-item.active { background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.4); }
+    .geotag-item-title { font-size: 11px; font-weight: 800; color: #38bdf8; display: flex; justify-content: space-between; margin-bottom: 3px; }
+    .geotag-item-sub { font-size: 9px; color: var(--mac-muted); }
+    
+    .geotag-detail-card { background: rgba(11, 19, 41, 0.8); border: 1px solid var(--mac-border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .geotag-detail-title { font-size: 12px; font-weight: 800; color: var(--mac-accent); border-bottom: 1px solid var(--mac-border); padding-bottom: 6px; }
+    .geotag-detail-row { display: flex; justify-content: space-between; font-size: 10px; }
+    .geotag-detail-row span { color: var(--mac-muted); }
+    .geotag-detail-row strong { color: #f8fafc; font-family: monospace; }
 
     .mobile-toggle-btn { display: none; }
     .mobile-accordion-list { display: none; }
@@ -160,6 +164,7 @@
 
       .main-content { padding: 12px; }
       .top-bar { flex-direction: column; align-items: stretch; gap: 8px; }
+      .top-bar-left { justify-content: space-between; }
       .global-search-container { max-width: 100%; }
 
       .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -167,11 +172,11 @@
       .kpi-card .value { font-size: 15px; }
 
       .dashboard-split { grid-template-columns: 1fr; gap: 0; }
+      .geotag-layout { grid-template-columns: 1fr; }
       .card-panel { padding: 10px; margin-bottom: 12px; }
       .chart-wrapper { height: 190px; }
 
       .desktop-table-view { display: none; }
-
       .mobile-accordion-list { display: flex; flex-direction: column; gap: 8px; width: 100%; }
       
       .accordion-item { background: rgba(11, 19, 41, 0.6); border: 1px solid var(--mac-border); border-radius: 8px; overflow: hidden; }
@@ -183,9 +188,6 @@
       .accordion-body.active { display: block; }
       .acc-detail-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
       .acc-detail-row strong { color: #f8fafc; }
-      
-      .calendar-grid { grid-template-columns: repeat(7, 1fr); gap: 4px; }
-      .cal-cell { min-height: 55px; padding: 3px; }
     }
   </style>
 </head>
@@ -211,27 +213,34 @@
     <div class="sidebar-content" id="sidebarContent">
       <div class="nav-menu">
         <div class="nav-item active" onclick="switchView('overview', this)">📊 Dashboard Overview</div>
-        <div class="nav-item" onclick="switchView('routes', this)">🚚 Workload & SLA per Rute</div>
-        <div class="nav-item" onclick="switchView('points', this)">📍 Konsolidasi MB & BP</div>
+        <div class="nav-item" onclick="switchView('routes', this)">🚚 Load & SLA</div>
+        <div class="nav-item" onclick="switchView('points', this)">📍 Info Point Task</div>
         <div class="nav-item" onclick="switchView('geotag', this)">🗺️ Geotag Jabodetabek (PU)</div>
-        <div class="nav-item" onclick="switchView('calendar', this)">📅 Kalender Statistik Harian</div>
       </div>
 
+      <!-- Full Interactive Calendar replacing Date Picker -->
       <div class="filter-group">
-        <label>📅 TANGGAL OPERASIONAL</label>
-        <div class="date-control-box">
-          <input type="date" id="filterTanggal" class="date-input-custom" onchange="loadDashboardData()">
-          <button class="btn-reset-date" onclick="resetDateFilter()">Semua</button>
+        <label>📅 KALENDER OPERASIONAL</label>
+        <div class="sidebar-calendar">
+          <div class="cal-header-mini">
+            <span id="calMonthLabel">Agustus 2026</span>
+            <span style="font-size:9px; color:var(--mac-accent); cursor:pointer;" onclick="resetToToday()">Hari Ini</span>
+          </div>
+          <div class="cal-grid-mini" id="sidebarMiniCal">
+            <!-- Rendered via JS -->
+          </div>
         </div>
       </div>
+
       <div class="filter-group">
         <label>🚚 RUTE / DRIVER FILTER</label>
         <select id="filterRute" onchange="loadDashboardData()"><option>SEMUA RUTE</option></select>
       </div>
+
       <div class="sys-status">
         <strong>⚡ MACOS / IOS PWA ENGINE</strong><br>
-        • Native Glassmorphism UI<br>
-        • Synchronized Jabodetabek Geolog<br>
+        • Live Calendar Data Sync<br>
+        • Jabodetabek Geolog Analysis<br>
         • Universal Global Search
       </div>
     </div>
@@ -240,15 +249,17 @@
   <!-- Main Content Area -->
   <div class="main-content">
     <div class="top-bar">
-      <h1>🚛 CONTROL TOWER LOGISTICS</h1>
+      <div class="top-bar-left">
+        <button class="btn-home" onclick="goHome()" title="Kembali ke Dashboard Overview">🏠</button>
+        <h1>CONTROL TOWER LOGISTICS</h1>
+      </div>
       <div class="global-search-container">
         <span class="global-search-icon">🔍</span>
         <input type="text" class="global-search" id="globalSearchInput" onkeyup="applyGlobalSearch()" placeholder="Cari rute, point, atau driver...">
       </div>
-      <button class="btn-refresh" onclick="loadDashboardData()">🔄 REFRESH</button>
     </div>
 
-    <!-- 6 KPI Grid Cards (Visible across general metrics) -->
+    <!-- 6 KPI Grid Cards -->
     <div class="kpi-grid">
       <div class="kpi-card"><div class="title">Total Trip</div><div class="value" id="kpiTrip">0</div><div class="subtext" id="kpiNopol">0 Unit</div></div>
       <div class="kpi-card"><div class="title">Pure Pick-Up</div><div class="value" id="kpiPurePU">0</div><div class="subtext">Pengambilan</div></div>
@@ -263,17 +274,19 @@
       <strong>💡 [AI CONTROL TOWER DIAGNOSTICS]</strong> Memuat analisis kargo operasional...
     </div>
 
-    <!-- VIEW 1: OVERVIEW -->
+    <!-- VIEW 1: OVERVIEW (Key points highlighted for selected date) -->
     <div class="view-section active" id="view-overview">
       <div class="dashboard-split">
         <div class="left-col">
           <div class="card-panel">
-            <div class="panel-header"><h3>📊 Quick Route Summary</h3></div>
+            <div class="panel-header">
+              <h3 id="overviewTitleHeader">📊 Overview Poin Penting Hari Ini</h3>
+            </div>
             <table class="desktop-table-view">
               <thead>
-                <tr><th>RUTE</th><th>POINT</th><th>PURE PU / DROP</th><th>SLA %</th><th>STATUS</th></tr>
+                <tr><th>RUTE / POINT</th><th>KATEGORI</th><th>VOLUME / WORKLOAD</th><th>SLA %</th><th>STATUS</th></tr>
               </thead>
-              <tbody id="overviewRouteTable"></tbody>
+              <tbody id="overviewKeyPointsTable"></tbody>
             </table>
           </div>
         </div>
@@ -290,11 +303,11 @@
       </div>
     </div>
 
-    <!-- VIEW 2: ROUTES BREAKDOWN -->
+    <!-- VIEW 2: LOAD & SLA -->
     <div class="view-section" id="view-routes">
       <div class="card-panel">
         <div class="panel-header">
-          <h3>📊 Breakdown Workload & SLA per Rute</h3>
+          <h3>🚚 Load & SLA per Rute</h3>
           <input type="text" class="search-box" id="searchRoute" onkeyup="filterRoutes()" placeholder="🔍 Saring Rute (misal: BTS10, CDE)...">
         </div>
         <table class="desktop-table-view">
@@ -307,11 +320,11 @@
       </div>
     </div>
 
-    <!-- VIEW 3: POINTS CONSOLIDATION -->
+    <!-- VIEW 3: INFO POINT TASK -->
     <div class="view-section" id="view-points">
       <div class="card-panel">
         <div class="panel-header">
-          <h3>📍 Konsolidasi MB & BP per Pickup / Drop Point</h3>
+          <h3>📍 Info Point Task</h3>
           <input type="text" class="search-box" id="searchPoint" onkeyup="filterPoints()" placeholder="🔍 Saring Nama Point / Substation...">
         </div>
         <table class="desktop-table-view">
@@ -324,107 +337,21 @@
       </div>
     </div>
 
-    <!-- VIEW 4: GEOTAG JABODETABEK (TIM PU) -->
+    <!-- VIEW 4: GEOTAG JABODETABEK (PU) -->
     <div class="view-section" id="view-geotag">
       <div class="card-panel">
         <div class="panel-header">
-          <h3>🗺️ Geotagging Jabodetabek (Tim PU Spatial Data)</h3>
+          <h3>🗺️ Geotagging Jabodetabek (Analisis Geolog Tim PU)</h3>
         </div>
-        <p style="font-size:11px; color:var(--mac-muted); margin-bottom:12px;">Pemetaan koordinat operasional penjemputan logistik wilayah Jabodetabek berdasarkan geolog lapangan:</p>
-        <div class="geotag-grid">
-          <div class="geotag-card">
-            <div class="geotag-loc"><span>📍 Sunter Hub Center</span><span class="badge badge-optimal">Active</span></div>
-            <div class="geotag-coords">Lat: -6.1451, Lng: 106.8682</div>
-            <div style="font-size:10px; color:#cbd5e1;">Region: Jakarta Utara • Rute Utama BTS</div>
+        <p style="font-size:11px; color:var(--mac-muted); margin-bottom:12px;">Klik salah satu titik koordinat geolog wilayah Jabodetabek di bawah untuk melihat detail analisis spasial dan penjemputan:</p>
+        
+        <div class="geotag-layout">
+          <div class="geotag-list" id="geotagListContainer">
+            <!-- Rendered via JS -->
           </div>
-          <div class="geotag-card">
-            <div class="geotag-loc"><span>📍 Cipinang Logistics Point</span><span class="badge badge-optimal">Active</span></div>
-            <div class="geotag-coords">Lat: -6.2250, Lng: 106.8921</div>
-            <div style="font-size:10px; color:#cbd5e1;">Region: Jakarta Timur • Hub Utama Pickup</div>
-          </div>
-          <div class="geotag-card">
-            <div class="geotag-loc"><span>📍 Bekasi Substation Timur</span><span class="badge badge-warning">Moderate</span></div>
-            <div class="geotag-coords">Lat: -6.2383, Lng: 106.9756</div>
-            <div style="font-size:10px; color:#cbd5e1;">Region: Bekasi • Transit Kargo</div>
-          </div>
-          <div class="geotag-card">
-            <div class="geotag-loc"><span>📍 Depok Margonda Drop Point</span><span class="badge badge-optimal">Active</span></div>
-            <div class="geotag-coords">Lat: -6.3855, Lng: 106.8307</div>
-            <div style="font-size:10px; color:#cbd5e1;">Region: Depok • Kurir Reguler</div>
-          </div>
-          <div class="geotag-card">
-            <div class="geotag-loc"><span>📍 Tangerang BSD Hub</span><span class="badge badge-optimal">Active</span></div>
-            <div class="geotag-coords">Lat: -6.3024, Lng: 106.6520</div>
-            <div style="font-size:10px; color:#cbd5e1;">Region: Tangerang • Zona Barat</div>
-          </div>
-          <div class="geotag-card">
-            <div class="geotag-loc"><span>📍 Jakarta Selatan Hub</span><span class="badge badge-optimal">Active</span></div>
-            <div class="geotag-coords">Lat: -6.2615, Lng: 106.8106</div>
-            <div style="font-size:10px; color:#cbd5e1;">Region: Jakarta Selatan • High Volume</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- VIEW 5: FULL CALENDAR STATISTICS -->
-    <div class="view-section" id="view-calendar">
-      <div class="card-panel">
-        <div class="panel-header">
-          <h3>📅 Kalender Statistik Operasional Harian</h3>
-        </div>
-        <div class="calendar-container">
-          <div class="calendar-header-bar">
-            <span>📅 Agustus 2026</span>
-            <span style="font-size: 10px; color: var(--mac-muted);">Statistik & Kinerja Muatan Harian</span>
-          </div>
-          <div class="calendar-grid">
-            <div class="cal-day-header">Min</div>
-            <div class="cal-day-header">Sen</div>
-            <div class="cal-day-header">Sel</div>
-            <div class="cal-day-header">Rab</div>
-            <div class="cal-day-header">Kam</div>
-            <div class="cal-day-header">Jum</div>
-            <div class="cal-day-header">Sab</div>
-            <!-- Calendar Days Mockup / Dynamic -->
-            <div class="cal-cell" style="opacity: 0.3;"><span class="cal-date-num">26</span></div>
-            <div class="cal-cell" style="opacity: 0.3;"><span class="cal-date-num">27</span></div>
-            <div class="cal-cell" style="opacity: 0.3;"><span class="cal-date-num">28</span></div>
-            <div class="cal-cell" style="opacity: 0.3;"><span class="cal-date-num">29</span></div>
-            <div class="cal-cell" style="opacity: 0.3;"><span class="cal-date-num">30</span></div>
-            <div class="cal-cell" style="opacity: 0.3;"><span class="cal-date-num">31</span></div>
-            <div class="cal-cell"><span class="cal-date-num">1</span><span class="cal-stat-badge">98% SLA</span></div>
-            
-            <div class="cal-cell"><span class="cal-date-num">2</span><span class="cal-stat-badge">95% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">3</span><span class="cal-stat-badge">97% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">4</span><span class="cal-stat-badge">99% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">5</span><span class="cal-stat-badge">94% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">6</span><span class="cal-stat-badge">96% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">7</span><span class="cal-stat-badge">98% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">8</span><span class="cal-stat-badge">92% SLA</span></div>
-
-            <div class="cal-cell"><span class="cal-date-num">9</span><span class="cal-stat-badge">95% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">10</span><span class="cal-stat-badge">97% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">11</span><span class="cal-stat-badge">99% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">12</span><span class="cal-stat-badge">96% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">13</span><span class="cal-stat-badge">98% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">14</span><span class="cal-stat-badge">97% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">15</span><span class="cal-stat-badge">94% SLA</span></div>
-
-            <div class="cal-cell"><span class="cal-date-num">16</span><span class="cal-stat-badge">96% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">17</span><span class="cal-stat-badge">99% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">18</span><span class="cal-stat-badge">95% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">19</span><span class="cal-stat-badge">98% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">20</span><span class="cal-stat-badge">97% SLA</span></div>
-            <div class="cal-cell" style="border-color: #38bdf8; background: rgba(56,189,248,0.08);"><span class="cal-date-num" style="color:#38bdf8">21</span><span class="cal-stat-badge" style="background:#0284c7; color:white;">Today</span></div>
-            <div class="cal-cell"><span class="cal-date-num">22</span><span class="cal-stat-badge">96% SLA</span></div>
-
-            <div class="cal-cell"><span class="cal-date-num">23</span><span class="cal-stat-badge">95% SLA</span></div>
-            <div class="cal-cell"><span class="cal-date-num">24</span></div>
-            <div class="cal-cell"><span class="cal-date-num">25</span></div>
-            <div class="cal-cell"><span class="cal-date-num">26</span></div>
-            <div class="cal-cell"><span class="cal-date-num">27</span></div>
-            <div class="cal-cell"><span class="cal-date-num">28</span></div>
-            <div class="cal-cell"><span class="cal-date-num">29</span></div>
+          <div class="geotag-detail-card" id="geotagDetailCard">
+            <div class="geotag-detail-title">Pilih Titik Geolog</div>
+            <div style="font-size:11px; color:var(--mac-muted); text-align:center; padding:30px 0;">Silakan pilih salah satu titik hub di panel sebelah kiri untuk melihat rekam jejak geolog tim PU.</div>
           </div>
         </div>
       </div>
@@ -439,8 +366,21 @@
     let pieChartInstance = null;
     let barChartInstance = null;
     let rawDashboardData = null;
+    let selectedOperationalDate = "2026-08-23"; // Default current active date
+
+    // Jabodetabek Geolog Data Database for Tim PU
+    const jabodetabekGeologData = [
+      { id: 1, name: "Sunter Hub Center", region: "Jakarta Utara", lat: "-6.1451", lng: "106.8682", route: "BTS-01", status: "Active", volume: "1,420 Koli", density: "High", dispatchTime: "06:30 WIB", notes: "Titik konsolidasi primer kargo express wilayah utara. Kondisi akses jalan lancar." },
+      { id: 2, name: "Cipinang Logistics Point", region: "Jakarta Timur", lat: "-6.2250", lng: "106.8921", route: "BTS-02", status: "Active", volume: "1,890 Koli", density: "Very High", dispatchTime: "05:45 WIB", notes: "Hub pickup utama. Trafik kontainer padat pada jam operasional pagi." },
+      { id: 3, name: "Bekasi Substation Timur", region: "Bekasi", lat: "-6.2383", lng: "106.9756", route: "BKS-05", status: "Warning", volume: "980 Koli", density: "Moderate", dispatchTime: "07:15 WIB", notes: "Terdapat perbaikan jalan akses tol lingkar. Estimasi delay kargo +15 menit." },
+      { id: 4, name: "Depok Margonda Drop Point", region: "Depok", lat: "-6.3855", lng: "106.8307", route: "DPK-03", status: "Active", volume: "750 Koli", density: "Moderate", dispatchTime: "08:00 WIB", notes: "Titik penurunan kurir reguler kawasan kampus & komersial Margonda." },
+      { id: 5, name: "Tangerang BSD Hub", region: "Tangerang", lat: "-6.3024", lng: "106.6520", route: "TNG-04", status: "Active", volume: "1,120 Koli", density: "High", dispatchTime: "06:00 WIB", notes: "Zona barat terpantau stabil dengan efisiensi muat armada mencapai 94%." },
+      { id: 6, name: "Jakarta Selatan Hub", region: "Jakarta Selatan", lat: "-6.2615", lng: "106.8106", route: "SEL-02", status: "Active", volume: "1,340 Koli", density: "High", dispatchTime: "06:15 WIB", notes: "Aktivitas pick-up perkantoran tinggi menjelang siang hari." }
+    ];
 
     window.onload = function() {
+      renderSidebarCalendar();
+      renderGeotagList();
       loadDashboardData();
     };
 
@@ -460,22 +400,54 @@
       }
     }
 
+    function goHome() {
+      const overviewTab = document.querySelectorAll('.nav-item')[0];
+      switchView('overview', overviewTab);
+    }
+
     function toggleAccordion(elementId) {
       document.getElementById(elementId).classList.toggle('active');
     }
 
-    function resetDateFilter() {
-      document.getElementById('filterTanggal').value = '';
+    // Interactive Sidebar Calendar Logic for August 2026
+    function renderSidebarCalendar() {
+      const calContainer = document.getElementById('sidebarMiniCal');
+      const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+      let html = '';
+      
+      days.forEach(d => html += `<div class="cal-day-lbl">${d}</div>`);
+      
+      // August 2026 starts on Saturday (index 6). Let's pad 6 days from July.
+      for(let i = 26; i <= 31; i++) {
+        html += `<div class="cal-cell-mini other-month">${i}</div>`;
+      }
+      
+      for(let d = 1; d <= 31; d++) {
+        let dateStr = `2026-08-${d < 10 ? '0' + d : d}`;
+        let isSelected = dateStr === selectedOperationalDate ? 'selected' : '';
+        html += `<div class="cal-cell-mini ${isSelected}" onclick="selectCalendarDate('${dateStr}')">${d}</div>`;
+      }
+      
+      calContainer.innerHTML = html;
+      document.getElementById('overviewTitleHeader').innerText = `📊 Overview Poin Penting (${selectedOperationalDate})`;
+    }
+
+    function selectCalendarDate(dateStr) {
+      selectedOperationalDate = dateStr;
+      renderSidebarCalendar();
+      loadDashboardData();
+    }
+
+    function resetToToday() {
+      selectedOperationalDate = "2026-08-23";
+      renderSidebarCalendar();
       loadDashboardData();
     }
 
     function loadDashboardData() {
       showLoader(true);
-      let tglVal = document.getElementById('filterTanggal').value;
-      const tgl = tglVal ? tglVal : "SEMUA TANGGAL";
       const rute = document.getElementById('filterRute').value || "SEMUA RUTE";
-
-      const targetUrl = `${GAS_API_URL}?action=getInitialData&tanggal=${encodeURIComponent(tgl)}&rute=${encodeURIComponent(rute)}`;
+      const targetUrl = `${GAS_API_URL}?action=getInitialData&tanggal=${encodeURIComponent(selectedOperationalDate)}&rute=${encodeURIComponent(rute)}`;
 
       fetch(targetUrl)
         .then(response => response.json())
@@ -538,20 +510,20 @@
 
       filterRoutes();
       filterPoints();
-      renderOverviewSummary();
+      renderOverviewKeyPoints();
       renderCharts(data.chartData);
     }
 
-    function renderOverviewSummary() {
+    function renderOverviewKeyPoints() {
       if (!rawDashboardData || !rawDashboardData.routeRows) return;
       let html = '';
       rawDashboardData.routeRows.slice(0, 5).forEach(r => {
         let badgeClass = 'badge-optimal';
         if (r.status.includes('WARNING')) badgeClass = 'badge-warning';
         if (r.status.includes('CRITICAL')) badgeClass = 'badge-critical';
-        html += `<tr><td><strong>${r.code}</strong></td><td>${r.points}</td><td>${r.puDrop}</td><td>${r.sla}</td><td><span class="badge ${badgeClass}">${r.status}</span></td></tr>`;
+        html += `<tr><td><strong>${r.code}</strong></td><td>Rute Utama</td><td>${r.load}</td><td>${r.sla}</td><td><span class="badge ${badgeClass}">${r.status}</span></td></tr>`;
       });
-      document.getElementById('overviewRouteTable').innerHTML = html || '<tr><td colspan="5">Tidak ada data</td></tr>';
+      document.getElementById('overviewKeyPointsTable').innerHTML = html || '<tr><td colspan="5">Tidak ada data poin penting</td></tr>';
     }
 
     function filterRoutes() {
@@ -618,10 +590,51 @@
       document.getElementById('pointAccordionList').innerHTML = accHtml || '<div style="font-size:11px; color:#64748b; padding:8px;">Data point tidak ditemukan</div>';
     }
 
+    function renderGeotagList() {
+      const container = document.getElementById('geotagListContainer');
+      let html = '';
+      jabodetabekGeologData.forEach((item, idx) => {
+        let badgeClass = item.status === 'Active' ? 'badge-optimal' : 'badge-warning';
+        html += `
+          <div class="geotag-item ${idx === 0 ? 'active' : ''}" onclick="selectGeotagItem(${item.id}, this)">
+            <div class="geotag-item-title">
+              <span>📍 ${item.name}</span>
+              <span class="badge ${badgeClass}">${item.status}</span>
+            </div>
+            <div class="geotag-item-sub">Region: ${item.region} • Route: ${item.route}</div>
+          </div>`;
+      });
+      container.innerHTML = html;
+      // Load first item detail by default
+      selectGeotagItem(jabodetabekGeologData[0].id, container.children[0]);
+    }
+
+    function selectGeotagItem(id, element) {
+      document.querySelectorAll('.geotag-item').forEach(el => el.classList.remove('active'));
+      if(element) element.classList.add('active');
+
+      const data = jabodetabekGeologData.find(d => d.id === id);
+      if(!data) return;
+
+      let badgeClass = data.status === 'Active' ? 'badge-optimal' : 'badge-warning';
+      const detailCard = document.getElementById('geotagDetailCard');
+      detailCard.innerHTML = `
+        <div class="geotag-detail-title">🗺️ ${data.name} <span class="badge ${badgeClass}" style="float:right;">${data.status}</span></div>
+        <div class="geotag-detail-row"><span>Wilayah / Region:</span><strong>${data.region}</strong></div>
+        <div class="geotag-detail-row"><span>Koordinat Geolog:</span><strong>Lat: ${data.lat}, Lng: ${data.lng}</strong></div>
+        <div class="geotag-detail-row"><span>Rute Terkait:</span><strong>${data.route}</strong></div>
+        <div class="geotag-detail-row"><span>Volume Kargo:</span><strong>${data.volume}</strong></div>
+        <div class="geotag-detail-row"><span>Kepadatan Trafik:</span><strong>${data.density}</strong></div>
+        <div class="geotag-detail-row"><span>Jam Dispatch:</span><strong>${data.dispatchTime}</strong></div>
+        <div style="margin-top:4px; font-size:10px; color:var(--mac-muted); border-top:1px solid var(--mac-border); pt:8px;">
+          <strong>Catatan Lapangan Tim PU:</strong><br>${data.notes}
+        </div>
+      `;
+    }
+
     function applyGlobalSearch() {
       const q = document.getElementById('globalSearchInput').value.toLowerCase();
       if(!q) return;
-      // Otomatis arahkan ke view rute jika pencarian global aktif
       const routeTab = document.querySelectorAll('.nav-item')[1];
       switchView('routes', routeTab);
       document.getElementById('searchRoute').value = q;
