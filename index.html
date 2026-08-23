@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Control Tower">
   <meta name="theme-color" content="#070c1b">
-  <title>Control Tower Logistics - Advanced Edition</title>
+  <title>Control Tower Logistics</title>
 
   <!-- PWA MANIFEST & HOMESCREEN ICON LINK -->
   <link rel="manifest" href="manifest.json">
@@ -228,10 +228,10 @@
       </div>
 
       <div class="sys-status">
-        <strong>⚡ ADVANCED CONTROL ENGINE</strong><br>
+        <strong>⚡ CONTROL TOWER ENGINE</strong><br>
         • Dual-Mode Rollup (Bulanan & Harian)<br>
         • Jabodetabek Geolog Maps<br>
-        • Real-Time Context Sync
+        • Universal Global Search
       </div>
     </div>
   </div>
@@ -408,7 +408,6 @@
       document.getElementById(elementId).classList.toggle('active');
     }
 
-    // Switch between Monthly Accumulation and Daily View
     function setAnalysisMode(mode) {
       currentAnalysisMode = mode;
       
@@ -419,7 +418,6 @@
       loadDashboardData(false);
     }
 
-    // Interactive Sidebar Calendar Logic for August 2026
     function renderSidebarCalendar() {
       const calContainer = document.getElementById('sidebarMiniCal');
       const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -452,7 +450,7 @@
 
     function selectCalendarDate(dateStr) {
       selectedOperationalDate = dateStr;
-      setAnalysisMode('daily'); // Otomatis beralih ke mode harian saat tanggal diklik
+      setAnalysisMode('daily');
     }
 
     function loadDashboardData(showLoadingOverlay = false) {
