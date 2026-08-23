@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Control Tower">
   <meta name="theme-color" content="#070c1b">
-  <title>Control Tower Logistics</title>
+  <title>Control Tower Logistics - Advanced Edition</title>
 
   <!-- PWA MANIFEST & HOMESCREEN ICON LINK -->
   <link rel="manifest" href="manifest.json">
@@ -41,7 +41,7 @@
     
     #loaderOverlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(11, 19, 41, 0.95); backdrop-filter: blur(8px);
+      background: rgba(11, 19, 41, 0.92); backdrop-filter: blur(8px);
       z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; transition: opacity 0.3s ease;
     }
     .spinner {
@@ -228,10 +228,10 @@
       </div>
 
       <div class="sys-status">
-        <strong>⚡ CONTROL TOWER ENGINE</strong><br>
+        <strong>⚡ ADVANCED CONTROL ENGINE</strong><br>
         • Dual-Mode Rollup (Bulanan & Harian)<br>
         • Jabodetabek Geolog Maps<br>
-        • Universal Global Search
+        • Real-Time Context Sync
       </div>
     </div>
   </div>
@@ -408,6 +408,7 @@
       document.getElementById(elementId).classList.toggle('active');
     }
 
+    // Switch between Monthly Accumulation and Daily View
     function setAnalysisMode(mode) {
       currentAnalysisMode = mode;
       
@@ -418,6 +419,7 @@
       loadDashboardData(false);
     }
 
+    // Interactive Sidebar Calendar Logic for August 2026
     function renderSidebarCalendar() {
       const calContainer = document.getElementById('sidebarMiniCal');
       const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -450,12 +452,13 @@
 
     function selectCalendarDate(dateStr) {
       selectedOperationalDate = dateStr;
-      setAnalysisMode('daily');
+      setAnalysisMode('daily'); // Otomatis beralih ke mode harian saat tanggal diklik
     }
 
     function loadDashboardData(showLoadingOverlay = false) {
       if (showLoadingOverlay) showLoader(true);
       
+      // Jika mode monthly, parameter tanggal dikirim "SEMUA TANGGAL" agar backend merangkum 1 bulan penuh
       const targetParam = currentAnalysisMode === 'monthly' ? "SEMUA TANGGAL" : selectedOperationalDate;
       const targetUrl = `${GAS_API_URL}?action=getInitialData&tanggal=${encodeURIComponent(targetParam)}&rute=SEMUA%20RUTE`;
 
@@ -466,11 +469,10 @@
             renderDashboard(res.dashboard);
             fetchAiDiagnostics(res.dashboard.aiPayload);
           }
+          if (showLoadingOverlay) showLoader(false);
         })
         .catch(err => {
           console.error("Gagal koneksi API GAS:", err);
-        })
-        .finally(() => {
           if (showLoadingOverlay) showLoader(false);
         });
     }
