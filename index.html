@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Control Tower">
   <meta name="theme-color" content="#070c1b">
-  <title>Control Tower Logistics - Advanced</title>
+  <title>Control Tower Logistics - Advanced Caching</title>
 
   <!-- PWA MANIFEST & HOMESCREEN ICON LINK -->
   <link rel="manifest" href="manifest.json">
@@ -84,6 +84,9 @@
     .cal-cell-mini:hover { background: rgba(255,255,255,0.1); color: white; }
     .cal-cell-mini.selected { background: var(--app-accent); color: #0b1329; font-weight: 800; }
     .cal-cell-mini.other-month { opacity: 0.25; }
+    /* Indikator Cached (Bintang/Titik kecil) */
+    .cal-cell-mini.cached { position: relative; }
+    .cal-cell-mini.cached::after { content: ''; position: absolute; top: 2px; right: 2px; width: 4px; height: 4px; background-color: #10b981; border-radius: 50%; }
 
     .sys-status { margin-top: auto; padding: 10px; background-color: #0b1329; border-radius: 8px; border: 1px solid var(--app-border); font-size: 9px; color: var(--app-muted); line-height: 1.4; }
     
@@ -193,7 +196,7 @@
   <!-- Loading Screen Overlay -->
   <div id="loaderOverlay">
     <div class="spinner"></div>
-    <div style="font-size: 11px; font-weight:700; color:var(--app-accent); letter-spacing:0.8px;">LOADING CONTROL TOWER...</div>
+    <div style="font-size: 11px; font-weight:700; color:var(--app-accent); letter-spacing:0.8px;">SINKRONISASI DATA...</div>
   </div>
 
   <!-- Sidebar & Navigation Panel -->
@@ -210,7 +213,7 @@
         <div class="nav-item" onclick="switchView('geotag', this)">🗺️ Geotag Jabodetabek (PU)</div>
       </div>
 
-      <!-- FILTER RUTE / DRIVER DIKEMBALIKAN DISINI -->
+      <!-- FILTER RUTE / DRIVER -->
       <div class="filter-group">
         <label>🚚 FILTER RUTE / DRIVER</label>
         <select id="filterRute" onchange="loadDashboardData(true)">
@@ -218,7 +221,7 @@
         </select>
       </div>
 
-      <!-- ADVANCED KALENDER: DUAL MODE (AKUMULASI & HARIAN) -->
+      <!-- ADVANCED KALENDER: DUAL MODE & SMART CACHING -->
       <div class="filter-group">
         <label>📅 PERIODE ANALISIS (DUAL-MODE)</label>
         <div class="mode-switch-grid">
@@ -233,13 +236,14 @@
           <div class="cal-grid-mini" id="sidebarMiniCal">
             <!-- Rendered via JS -->
           </div>
+          <div style="font-size:8px; color:#10b981; margin-top:6px; text-align:right;">● Titik Hijau = Data Tersimpan di Memori (Instan)</div>
         </div>
       </div>
 
       <div class="sys-status">
         <strong>⚡ CONTROL TOWER ENGINE</strong><br>
-        • Live Calendar Data Sync<br>
-        • Advanced Dual-Mode Rollup<br>
+        • Advanced Smart Caching<br>
+        • Dual-Mode Rollup<br>
         • Universal Global Search
       </div>
     </div>
@@ -373,11 +377,16 @@
     let barChartInstance = null;
     let rawDashboardData = null;
     
-    // STATE MANAGAMENT (ADVANCED DUAL MODE)
+    // 💡 ADVANCED SMART CACHE SYSTEM
+    // Ini akan menyimpan data yang sudah di-load agar tidak perlu panggil server ulang
+    let appDataCache = {}; 
+    let cachedAiInsights = {};
+
+    // STATE MANAGAMENT
     let currentMode = "monthly"; // 'monthly' atau 'daily'
     let selectedOperationalDate = "2026-08-23"; 
 
-    // Jabodetabek Geolog Data Database for Tim PU
+    // Jabodetabek Geolog Data
     const jabodetabekGeologData = [
       { id: 1, name: "Sunter Hub Center", region: "Jakarta Utara", lat: "-6.1451", lng: "106.8682", route: "BTS-01", status: "Active", volume: "1,420 Koli", density: "High" },
       { id: 2, name: "Cipinang Logistics Point", region: "Jakarta Timur", lat: "-6.2250", lng: "106.8921", route: "BTS-02", status: "Active", volume: "1,890 Koli", density: "Very High" },
@@ -410,22 +419,17 @@
 
     function toggleAccordion(elementId) { document.getElementById(elementId).classList.toggle('active'); }
 
-    // --- FUNGSI ADVANCED MODE (BULANAN VS HARIAN) ---
+    // --- FUNGSI ADVANCED MODE ---
     function setMode(mode) {
       currentMode = mode;
-      
-      // Update UI Tombol
       document.getElementById('btnModeMonthly').classList.toggle('active', mode === 'monthly');
       document.getElementById('btnModeDaily').classList.toggle('active', mode === 'daily');
-
-      // Refresh Kalender & Tarik Data
       renderSidebarCalendar();
       loadDashboardData(true); 
     }
 
     function selectCalendarDate(dateStr) {
       selectedOperationalDate = dateStr;
-      // Jika kalender diklik, otomatis paksa masuk ke mode Harian
       setMode('daily'); 
     }
 
@@ -440,19 +444,22 @@
         html += `<div class="cal-cell-mini other-month">${i}</div>`;
       }
       
+      const ruteEl = document.getElementById('filterRute');
+      const filterRuteValue = ruteEl ? ruteEl.value : "SEMUA RUTE";
+
       for(let d = 1; d <= 31; d++) {
         let dateStr = `2026-08-${d < 10 ? '0' + d : d}`;
-        // Highlight tanggal JIKA sedang dalam mode harian DAN tanggalnya cocok
         let isSelected = (currentMode === 'daily' && dateStr === selectedOperationalDate) ? 'selected' : '';
-        html += `<div class="cal-cell-mini ${isSelected}" onclick="selectCalendarDate('${dateStr}')">${d}</div>`;
+        
+        // Cek apakah data tanggal ini (dengan rute saat ini) sudah ada di Cache Memori
+        let isCached = appDataCache[`${dateStr}_${filterRuteValue}`] ? 'cached' : '';
+
+        html += `<div class="cal-cell-mini ${isSelected} ${isCached}" onclick="selectCalendarDate('${dateStr}')">${d}</div>`;
       }
       
       calContainer.innerHTML = html;
       
-      // Update Title & Badge Berdasarkan Mode Aktif
-      const badge = document.getElementById('activeModeBadge');
       const headerTitle = document.getElementById('overviewTitleHeader');
-      
       if(currentMode === 'monthly') {
         headerTitle.innerHTML = `<span>📊 Overview Poin Penting (Agustus 2026)</span> <span id="activeModeBadge" class="badge badge-optimal">Mode: Akumulasi</span>`;
       } else {
@@ -460,50 +467,78 @@
       }
     }
 
-    // --- FUNGSI AMAN PENGAMBILAN DATA (FAILSAFE LOADER) ---
+    // --- LOGIKA SMART CACHING & FETCHING DATA ---
     function loadDashboardData(showLoadingOverlay = false) {
-      if (showLoadingOverlay) showLoader(true);
-      
-      // Deteksi Filter Rute (Aman dari error null)
       const ruteEl = document.getElementById('filterRute');
       const filterRuteValue = ruteEl ? ruteEl.value : "SEMUA RUTE";
-      
-      // Deteksi Tanggal Berdasarkan Mode
       const filterTanggalValue = (currentMode === 'monthly') ? "SEMUA TANGGAL" : selectedOperationalDate;
+      
+      // Kunci Spesifik untuk Cache Memori
+      const cacheKey = `${filterTanggalValue}_${filterRuteValue}`;
 
+      // 1. CEK CACHE: JIKA DATA SUDAH ADA DI MEMORI, LOAD SECARA INSTAN!
+      if (appDataCache[cacheKey]) {
+        console.log("⚡ Memuat data super cepat dari Memory Cache:", cacheKey);
+        
+        // Render Dashboard
+        renderDashboard(appDataCache[cacheKey].dashboard);
+        
+        // Render AI Insights dari Cache (jika ada)
+        if(cachedAiInsights[cacheKey]) {
+           document.getElementById('aiBox').innerHTML = "<strong>💡 [AI CONTROL TOWER DIAGNOSTICS]</strong> " + cachedAiInsights[cacheKey];
+        } else {
+           fetchAiDiagnostics(appDataCache[cacheKey].dashboard.aiPayload, cacheKey);
+        }
+        
+        renderSidebarCalendar(); // Update indikator titik hijau
+        return; // MENGHENTIKAN PROSES DISINI AGAR TIDAK LOADING KE SERVER G-SHEETS
+      }
+
+      // 2. JIKA TIDAK ADA DI CACHE, BARU FETCH KE GOOGLE SHEETS
+      if (showLoadingOverlay) showLoader(true);
+      
       const targetUrl = `${GAS_API_URL}?action=getInitialData&tanggal=${encodeURIComponent(filterTanggalValue)}&rute=${encodeURIComponent(filterRuteValue)}`;
 
       fetch(targetUrl)
         .then(response => response.json())
         .then(res => {
+          if (res) {
+            // 💾 SIMPAN DATA KE CACHE MEMORI
+            appDataCache[cacheKey] = res; 
+          }
+
           if (res && res.filters && res.filters.routes && ruteEl) {
-            // Update dropdown tanpa menghilangkan pilihan saat ini
             ruteEl.innerHTML = '<option value="SEMUA RUTE">SEMUA RUTE</option>';
             res.filters.routes.forEach(r => {
               ruteEl.innerHTML += `<option value="${r}" ${r === filterRuteValue ? 'selected' : ''}>${r}</option>`;
             });
           }
+
           if (res && res.dashboard) {
             renderDashboard(res.dashboard);
-            fetchAiDiagnostics(res.dashboard.aiPayload);
+            fetchAiDiagnostics(res.dashboard.aiPayload, cacheKey);
           }
+          
+          renderSidebarCalendar(); // Update indikator titik hijau
         })
         .catch(err => {
           console.error("Gagal koneksi API GAS:", err);
-          document.getElementById('aiBox').innerHTML = "<strong>⚠️ [ERROR CONNECTION]</strong> Gagal memuat data dari server.";
+          document.getElementById('aiBox').innerHTML = "<strong>⚠️ [ERROR CONNECTION]</strong> Gagal memuat data dari server Google Sheets.";
         })
         .finally(() => {
-          // DIJAMIN tereksekusi, menutupi celah infinite loading
           if (showLoadingOverlay) showLoader(false);
         });
     }
 
-    function fetchAiDiagnostics(aiPayload) {
+    function fetchAiDiagnostics(aiPayload, cacheKey) {
+      document.getElementById('aiBox').innerHTML = "<strong>💡 [AI CONTROL TOWER DIAGNOSTICS]</strong> Memuat analisis AI...";
+      
       const aiUrl = `${GAS_API_URL}?action=getAiDiagnostics&aiPayload=${encodeURIComponent(JSON.stringify(aiPayload))}`;
       fetch(aiUrl)
         .then(res => res.json())
         .then(data => {
           if (data && data.aiInsight) {
+            cachedAiInsights[cacheKey] = data.aiInsight; // Simpan AI ke memori juga
             document.getElementById('aiBox').innerHTML = "<strong>💡 [AI CONTROL TOWER DIAGNOSTICS]</strong> " + data.aiInsight;
           }
         })
